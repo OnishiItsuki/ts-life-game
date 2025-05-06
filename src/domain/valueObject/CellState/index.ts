@@ -7,7 +7,13 @@ export class CellState {
   private readonly display: string;
   private readonly color: ConsoleColor;
 
-  private constructor(value: number, display: string, color: ConsoleColor) {
+  private constructor(props: {
+    value: number;
+    display: string;
+    color?: ConsoleColor;
+  }) {
+    const { value, display, color = Colors.White } = props;
+
     if (!Number.isInteger(value)) {
       throw new Error('CellState value must be an integer');
     }
@@ -18,7 +24,7 @@ export class CellState {
       throw new Error('CellState display must be a single character');
     }
 
-    if (!Object.keys(Colors).includes(color)) {
+    if (!Object.values(Colors).includes(color)) {
       throw new Error('Invalid color');
     }
 
@@ -27,8 +33,12 @@ export class CellState {
     this.color = color;
   }
 
-  static create(value: number, display: string, color: ConsoleColor = Colors.White): CellState {
-    return new CellState(value, display, color);
+  static create(props: {
+    value: number;
+    display: string;
+    color?: ConsoleColor;
+  }): CellState {
+    return new CellState(props);
   }
 
   equals(other: CellState): boolean {
@@ -43,5 +53,9 @@ export class CellState {
     return `${this.color}${this.display}${Colors.Default}`;
   }
 
-  static readonly DEAD = CellState.create(0, ' ', Colors.Default);
+  static readonly DEAD = CellState.create({
+    value: 0,
+    display: ' ',
+    color: Colors.Default,
+  });
 }

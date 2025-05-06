@@ -1,59 +1,137 @@
 import { CellState, Colors } from '.';
 
-describe('CellState', () => {
-  describe('create', () => {
-    it('整数以外の値を渡すとエラーになる', () => {
-      expect(() => CellState.create(1.5, '•', Colors.Black)).toThrow('CellState value must be an integer');
+describe('セル状態', () => {
+  describe('セル状態の作成', () => {
+    describe('数値の検証', () => {
+      it('小数点を含む数値は使用できない', () => {
+        expect(() =>
+          CellState.create({ value: 1.5, display: '•', color: Colors.Black }),
+        ).toThrow('CellState value must be an integer');
+      });
+
+      it('負の数値は使用できない', () => {
+        expect(() =>
+          CellState.create({ value: -1, display: '•', color: Colors.Black }),
+        ).toThrow('CellState value must be greater than 0');
+      });
     });
 
-    it('負の値を渡すとエラーになる', () => {
-      expect(() => CellState.create(-1, '•', Colors.Black)).toThrow('CellState value must be greater than 0');
+    describe('表示文字の検証', () => {
+      it('複数文字は使用できない', () => {
+        expect(() =>
+          CellState.create({ value: 1, display: '••', color: Colors.Black }),
+        ).toThrow('CellState display must be a single character');
+      });
+
+      it('空文字は使用できない', () => {
+        expect(() =>
+          CellState.create({ value: 1, display: '', color: Colors.Black }),
+        ).toThrow('CellState display must be a single character');
+      });
     });
 
-    it('1文字以外のdisplayを渡すとエラーになる', () => {
-      expect(() => CellState.create(1, '••', Colors.Black)).toThrow('CellState display must be a single character');
-      expect(() => CellState.create(1, '', Colors.Black)).toThrow('CellState display must be a single character');
+    describe('有効なパラメータでの作成', () => {
+      let state: CellState;
+
+      beforeEach(() => {
+        state = CellState.create({
+          value: 1,
+          display: '•',
+          color: Colors.Black,
+        });
+      });
+
+      it('指定した数値が正しく設定される', () => {
+        expect(state.getValue()).toBe(1);
+      });
+
+      it('表示文字は色情報と共に保存される', () => {
+        expect(state.getDisplay()).toBe(`${Colors.Black}•${Colors.Default}`);
+      });
     });
 
-    it('整数の値と1文字のdisplayは正常に作成できる', () => {
-      const state = CellState.create(1, '•', Colors.Black);
-      expect(state.getValue()).toBe(1);
-      expect(state.getDisplay()).toBe(`${Colors.Black}•${Colors.Default}`);
-    });
-
-    it('色を指定しない場合はデフォルトで白になる', () => {
+    describe('デフォルト値の適用', () => {
+      let state: CellState;
       const text = '•';
-      const state = CellState.create(1, text);
-      expect(state.getDisplay()).toBe(`${Colors.White}${text}${Colors.Default}`);
+
+      beforeEach(() => {
+        state = CellState.create({ value: 1, display: text });
+      });
+
+      it('色指定がない場合は白色が適用される', () => {
+        expect(state.getDisplay()).toBe(`${Colors.White}${text}${Colors.Default}`);
+      });
     });
   });
 
-  describe('equals', () => {
-    it('同じ値の場合はtrueを返す', () => {
-      const state1 = CellState.create(1, '•', Colors.Black);
-      const state2 = CellState.create(1, '•', Colors.Black);
-      expect(state1.equals(state2)).toBe(true);
+  describe('状態の比較', () => {
+    describe('同一状態の検出', () => {
+      let state1: CellState;
+      let state2: CellState;
+
+      beforeEach(() => {
+        state1 = CellState.create({
+          value: 1,
+          display: '•',
+          color: Colors.Black,
+        });
+        state2 = CellState.create({
+          value: 1,
+          display: '•',
+          color: Colors.Black,
+        });
+      });
+
+      it('同じ値を持つ状態は等価と判定される', () => {
+        expect(state1.equals(state2)).toBe(true);
+      });
     });
 
-    it('異なる値の場合はfalseを返す', () => {
-      const state1 = CellState.create(1, '•', Colors.Black);
-      const state2 = CellState.create(2, '•', Colors.Black);
-      expect(state1.equals(state2)).toBe(false);
+    describe('異なる状態の検出', () => {
+      let state1: CellState;
+      let state2: CellState;
+
+      beforeEach(() => {
+        state1 = CellState.create({
+          value: 1,
+          display: '•',
+          color: Colors.Black,
+        });
+        state2 = CellState.create({
+          value: 2,
+          display: '•',
+          color: Colors.Black,
+        });
+      });
+
+      it('異なる値を持つ状態は非等価と判定される', () => {
+        expect(state1.equals(state2)).toBe(false);
+      });
     });
   });
 
-  describe('getDisplay', () => {
-    it('指定した色で表示される', () => {
-      const text = '•';
-      const state = CellState.create(1, text, Colors.Red);
+  describe('表示文字の取得', () => {
+    let state: CellState;
+    const text = '•';
+
+    beforeEach(() => {
+      state = CellState.create({ value: 1, display: text, color: Colors.Red });
+    });
+
+    it('指定した色で表示文字を装飾する', () => {
       expect(state.getDisplay()).toBe(`${Colors.Red}${text}${Colors.Default}`);
     });
   });
 
-  describe('定数', () => {
-    it('DEADは0と空白を持ち、デフォルト色で表示される', () => {
+  describe('定義済み状態', () => {
+    it('死滅状態は数値0を持つ', () => {
       expect(CellState.DEAD.getValue()).toBe(0);
-      expect(CellState.DEAD.getDisplay()).toBe(`${Colors.Default} ${Colors.Default}`);
+    });
+
+    it('死滅状態は空白文字をデフォルト色で表示する', () => {
+      expect(CellState.DEAD.getDisplay()).toBe(
+        `${Colors.Default} ${Colors.Default}`,
+      );
     });
   });
 });

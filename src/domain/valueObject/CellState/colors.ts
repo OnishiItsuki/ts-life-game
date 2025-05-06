@@ -1,5 +1,3 @@
-export type ConsoleColor = string;
-
 export const Colors = {
   Default: '\x1b[0m',
   // 文字色
@@ -21,3 +19,6 @@ export const Colors = {
   BrightCyan: '\x1b[96m',
   BrightWhite: '\x1b[97m',
 } as const;
+
+// Colorsオブジェクトの値の型を抽出
+export type ConsoleColor = (typeof Colors)[keyof typeof Colors];

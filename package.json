@@ -4,8 +4,10 @@
   "description": "life game library for typescript and node",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/app.ts",
-    "test": "jest",
+    "start": "ts-node -r tsconfig-paths/register src/app.ts",
+    "test": "npm run jest",
+    "jest": "jest --config jest.config.js",
+    "jest:watch": "jest --config jest.config.js --watch",
     "lint": "eslint ."
   },
   "repository": {
@@ -23,12 +25,17 @@
     "@eslint/js": "^9.21.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.5",
-    "eslint": "^9.21.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.3.1",
     "globals": "^16.0.0",
     "jest": "^29.7.0",
-    "prettier": "^3.5.2",
+    "prettier": "^3.5.3",
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0"
   },
